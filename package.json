@@ -1,0 +1,26 @@
+{
+  "name": "persistent-storage",
+  "version": "1.0.0",
+  "description": "Abstracts access to any storage object implementing the webstorage Storage interface, offering optional compression using lz-string",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mnahkies/persistent-storage.git"
+  },
+  "author": "Michael Nahkies <info@nahkies.co.nz>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mnahkies/persistent-storage/issues"
+  },
+  "homepage": "https://github.com/mnahkies/persistent-storage",
+  "devDependencies": {
+    "mocha": "^2.2.5",
+    "node-storage-shim": "^1.0.0"
+  },
+  "dependencies": {
+    "lz-string": "^1.4.4"
+  }
+}
