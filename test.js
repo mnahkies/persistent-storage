@@ -17,11 +17,13 @@ describe('PersistentStorage', function () {
     describe('without compression', function () {
         var instance = new Storage({useCompression: false, storageBackend: new StorageShim()})
         testSaveAndRead(instance)
+        testKeys(instance)
     })
 
     describe('with compression', function () {
         var instance = new Storage({useCompression: true, storageBackend: new StorageShim()})
         testSaveAndRead(instance)
+        testKeys(instance)
     })
 
 })
@@ -38,13 +40,31 @@ function testSaveAndRead(instance) {
     runTest('null', null)
     runTest('undefined', undefined)
 
-
     function runTest(type, value) {
         it('can save and read back a ' + type, function () {
             var key = type + Math.random()
 
             instance.setItem(key, value)
             assert.strictEqual(instance.getItem(key), value)
+            instance.removeItem(key)
+            assert.strictEqual(instance.getItem(key), undefined)
         })
     }
+}
+
+function testKeys(instance) {
+
+    it("clear will result in no keys", function () {
+        instance.clear()
+        assert.strictEqual(instance.keys().length, 0)
+        assert.strictEqual(instance.length, 0)
+    })
+
+    it("adding an items will result in keys being in the array", function () {
+        instance.setItem('foo', 'bar')
+        assert.strictEqual(instance.key(0), 'foo')
+        assert.strictEqual(instance.keys()[0], 'foo')
+        assert.strictEqual(instance.keys().length, 1)
+        assert.strictEqual(instance.length, 1)
+    })
 }
