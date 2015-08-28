@@ -1,6 +1,6 @@
 var assert = require('assert')
 
-var Storage = require('./index.js'),
+var PersistentStorage = require('./index.js'),
     StorageShim = require('node-storage-shim')
 
 
@@ -8,20 +8,20 @@ describe('PersistentStorage', function () {
 
     it('throws an error if no storage backend is provided and localStorage does not exist', function () {
         try {
-            var instance = new Storage({})
+            var instance = new PersistentStorage({})
         } catch (e) {
             assert.ok(true, 'Threw an error')
         }
     })
 
     describe('without compression', function () {
-        var instance = new Storage({useCompression: false, storageBackend: new StorageShim()})
+        var instance = new PersistentStorage({useCompression: false, storageBackend: new StorageShim()})
         testSaveAndRead(instance)
         testKeys(instance)
     })
 
     describe('with compression', function () {
-        var instance = new Storage({useCompression: true, storageBackend: new StorageShim()})
+        var instance = new PersistentStorage({useCompression: true, storageBackend: new StorageShim()})
         testSaveAndRead(instance)
         testKeys(instance)
     })

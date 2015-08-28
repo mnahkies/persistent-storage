@@ -14,7 +14,7 @@ Example Usage
 
     var PersistentStore = require('persistent-store')
     
-    var store = new Storage({
+    var store = new PersistentStorage({
             useCompression: false, 
             storageBackend: new StorageShim()
         })
