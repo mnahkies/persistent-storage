@@ -1,13 +1,16 @@
-var lzString = require('lz-string')
+var lzString = require('lz-string'),
+    _ = require('lodash')
 
 function Config(opts) {
     this.useCompression = opts.useCompression || false
+    this.keyPrefix = opts.keyPrefix || ''
 }
 
 /**
  * Constructs a new PersistentStorage instead
  * @param opts
  * @param {boolean=false} opts.useCompression
+ * @param {string=} opts.keyPrefix
  * @param opts.storageBackend
  * @constructor
  */
@@ -33,7 +36,9 @@ function PersistentStorage(opts) {
  * @param {*} value - Value to store, if undefined will delete the given key
  */
 PersistentStorage.prototype.setItem = function (key, value) {
-    if (value === undefined) {
+    key = this.config.keyPrefix + key
+
+    if (_.isUndefined(value)) {
         this.removeItem(key)
     }
 
@@ -47,6 +52,8 @@ PersistentStorage.prototype.setItem = function (key, value) {
  * @returns {*}
  */
 PersistentStorage.prototype.getItem = function (key) {
+    key = this.config.keyPrefix + key
+
     if (this.cache.hasOwnProperty(key)) {
         return this.cache[key]
     }
@@ -65,7 +72,7 @@ PersistentStorage.prototype.getItem = function (key) {
  * @returns {string}
  */
 PersistentStorage.prototype.key = function (n) {
-    return this.store.key(n)
+    return this.keys()[n]
 }
 
 /**
@@ -73,7 +80,21 @@ PersistentStorage.prototype.key = function (n) {
  * @returns {string[]}
  */
 PersistentStorage.prototype.keys = function () {
-    return Object.keys(this.store)
+    var prefix = this.config.keyPrefix,
+        keys = Object.keys(this.store)
+
+    if (!prefix) {
+        return keys
+    }
+
+    return _.chain(keys)
+        .filter(function (key) {
+            return _.startsWith(key, prefix)
+        })
+        .map(function (key) {
+            return key.substr(prefix.length)
+        })
+        .value()
 }
 
 /**
@@ -81,6 +102,8 @@ PersistentStorage.prototype.keys = function () {
  * @param {string} key
  */
 PersistentStorage.prototype.removeItem = function (key) {
+    key = this.config.keyPrefix + key
+
     delete this.cache[key]
     this.store.removeItem(key)
 }
@@ -90,17 +113,22 @@ PersistentStorage.prototype.removeItem = function (key) {
  */
 PersistentStorage.prototype.clear = function () {
     this.cache = {}
-    this.store.clear()
+
+    if (this.config.keyPrefix) {
+        _.forEach(this.keys(), this.removeItem, this)
+    } else {
+        this.store.clear()
+    }
 }
 
 function convertValueForStorage(value, config) {
     var str = JSON.stringify(value)
 
     if (config.useCompression) {
-        str = lzString.compressToUTF16(str);
+        str = lzString.compressToUTF16(str)
     }
 
-    return str;
+    return str
 }
 
 function inflateValueFromStorage(value, config) {

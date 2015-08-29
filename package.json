@@ -1,6 +1,6 @@
 {
   "name": "persistent-storage",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Abstracts access to any storage object implementing the webstorage Storage interface, offering optional compression using lz-string",
   "main": "index.js",
   "scripts": {
@@ -21,6 +21,7 @@
     "node-storage-shim": "^1.0.1"
   },
   "dependencies": {
+    "lodash": "^3.10.1",
     "lz-string": "^1.4.4"
   }
 }
