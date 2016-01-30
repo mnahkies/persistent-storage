@@ -4,6 +4,7 @@ import _ = require('lodash')
 class Config {
     useCompression: boolean;
     useEncryption: boolean;
+    encryptKeys: boolean;
     useCache: boolean;
     keyPrefix: string;
     encryption: crypto.Options;
@@ -15,6 +16,7 @@ class Config {
 
         if (opts.encryption) {
             this.useEncryption = true;
+            this.encryptKeys = _.isBoolean(opts.encryption.encryptKeys) ? opts.encryption.encryptKeys : true
             this.encryption = {
                 algorithm: opts.encryption.method || 'aes-256-cbc',
                 key: crypto.deriveEncryptionKey(new crypto.KeyDerivationOptions(opts.encryption)),

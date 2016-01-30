@@ -1,7 +1,9 @@
 import _ = require('lodash')
+import I = require('../interfaces')
 import PersistentStorage = require('../PersistentStorage')
 import Chance = require('chance')
 import assert = require('assert')
+import util = require('util')
 
 var StorageShim = require('node-storage-shim')
 
@@ -13,53 +15,98 @@ describe('PersistentStorage', function () {
             assert.ok(true, 'Threw an error')
         }
     })
-    describe('without key prefixing', function () {
-        describe('without compression or encryption', function () {
-            var instance = new PersistentStorage({
-                useCompression: false,
-                storageBackend: new StorageShim()
-            })
-            testSaveAndRead(instance)
-            testKeys(instance)
-        })
-        describe('with compression', function () {
-            var instance = new PersistentStorage({
-                useCompression: true,
-                useCache: false,
-                storageBackend: new StorageShim()
-            })
-            testSaveAndRead(instance)
-            testKeys(instance)
-        })
-        describe('with encryption', function () {
-            var instance = new PersistentStorage({
-                useCompression: false,
-                useCache: false,
-                encryption: {
+    describe('standard tests', () => {
+        var options: {name: string; values: any[]}[] = [
+            {
+                name: 'useCompression',
+                values: [false, true]
+            },
+            {
+                name: 'useCache',
+                values: [false, true]
+            },
+            {
+                name: 'encryption',
+                values: [undefined, {
                     password: 'my super secret password',
                     iv: PersistentStorage.generateIV(16),
                     salt: PersistentStorage.generateSalt(64)
-                },
-                storageBackend: new StorageShim()
-            })
-            testSaveAndRead(instance)
-            testKeys(instance)
-        })
-        describe('with compression and encryption', function () {
-            var instance = new PersistentStorage({
-                useCompression: true,
-                useCache: false,
-                encryption: {
+                }, {
+                    encryptKeys: true,
                     password: 'my super secret password',
                     iv: PersistentStorage.generateIV(16),
                     salt: PersistentStorage.generateSalt(64)
-                },
-                storageBackend: new StorageShim()
-            })
-            testSaveAndRead(instance)
-            testKeys(instance)
+                }]
+            }
+        ]
+
+        runTests('with a single instance', options.concat([{
+            name: 'keyPrefix',
+            values: [undefined, 'some-key-prefix']
+        }]), new StorageShim())
+
+        describe('with multiple instances using key prefixes', () => {
+            var firstOptions = options.concat([
+                    {
+                        name: 'keyPrefix',
+                        values: ['some-key-prefix']
+                    },
+                ]),
+                secondOptions = options.concat([
+                    {
+                        name: 'keyPrefix',
+                        values: ['some-other-key-prefix']
+                    },
+                ]),
+                storageBackend = new StorageShim()
+
+            runTests('first instance', firstOptions, storageBackend)
+            runTests('second instance', secondOptions, storageBackend)
         })
 
+        function runTests(description, options, storageBackend) {
+            describe(description, () => {
+                _.map(generateConfigCombinations(options), function (config: I.Config) {
+                    describe("with configuration " + configToDescriptiveString(config), function () {
+                        config.storageBackend = storageBackend
+
+                        var instance = new PersistentStorage(config)
+
+                        testSaveAndRead(instance)
+                        testKeys(instance)
+                    })
+                })
+            })
+        }
+
+        function generateConfigCombinations(options): I.Config[] {
+
+            function generate(path: any[], remaining: any[], results: any[]) {
+                //console.log('remaing', remaining);
+
+                if (remaining.length === 0) {
+                    results.push(_.extend.apply(_, [{}].concat(path)))
+                    return results;
+                }
+
+                var first = _.first(remaining)
+                if (first) {
+                    _.map(first.values, function (value) {
+                        generate(path.concat([{[first.name]: value}]), _.tail(remaining), results)
+                    })
+                } else {
+                    results.push(path)
+                }
+                return results
+            }
+
+            return generate([], options, [])
+        }
+
+        function configToDescriptiveString(config: I.Config) {
+            return util.format('useCompression=%s useEncryption=%s encryptKeys=%s useCache=%s keyPrefix=%s',
+                config.useCompression, !!config.encryption, config.encryption && config.encryption.encryptKeys, config.useCache, config.keyPrefix);
+        }
 
         function testSaveAndRead(instance) {
             runTest('string', 'My Test String')
@@ -99,6 +146,7 @@ describe('PersistentStorage', function () {
             })
         }
     })
+
     describe('with a key prefix', function () {
         var storageBackend,
             fredsInstance,
@@ -168,6 +216,7 @@ describe('PersistentStorage', function () {
             instance = new PersistentStorage({
                 useCompression: true,
                 encryption: {
+                    encryptKeys: true,
                     password: 'my super secret password',
                     iv: PersistentStorage.generateIV(16),
                     salt: PersistentStorage.generateSalt(64)

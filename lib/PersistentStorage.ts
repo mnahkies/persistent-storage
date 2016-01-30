@@ -57,9 +57,9 @@ class PersistentStorage {
             this.cache[key] = value
         }
 
-        //if (this.config.useEncryption) {
-        //    key = encryptUtf8(key, this.config)
-        //}
+        if (this.config.encryptKeys) {
+            key = crypto.encryptUtf8(key, this.config.encryption)
+        }
 
         this.store.setItem(key, convertValueForStorage(value, this.config))
     }
@@ -76,9 +76,9 @@ class PersistentStorage {
             return this.cache[key]
         }
 
-        //if (this.config.useEncryption) {
-        //    key = decryptUtf8(key, this.config)
-        //}
+        if (this.config.encryptKeys) {
+            key = crypto.encryptUtf8(key, this.config.encryption)
+        }
 
         var value = this.store.getItem(key)
 
@@ -111,9 +111,16 @@ class PersistentStorage {
         var prefix = this.config.keyPrefix,
             keys = _.chain(_.keys(this.store))
 
-        //if (this.config.useEncryption) {
-        //    keys = keys.map(_.partial(decryptUtf8, _, this.config))
-        //}
+        if (this.config.encryptKeys) {
+            keys = keys.map(key => {
+                try {
+                    return crypto.decryptUtf8(key, this.config.encryption)
+                } catch (err) {
+                    return '';
+                }
+            })
+            keys = keys.compact()
+        }
 
         if (prefix) {
             keys = keys.filter(function (key) {
@@ -135,6 +142,11 @@ class PersistentStorage {
         key = this.config.keyPrefix + key
 
         delete this.cache[key]
+
+        if (this.config.encryptKeys) {
+            key = crypto.encryptUtf8(key, this.config.encryption)
+        }
+
         this.store.removeItem(key)
     }
 
@@ -145,7 +157,7 @@ class PersistentStorage {
         this.purgeCache()
 
         if (this.config.keyPrefix) {
-            _.forEach(this.keys(), this.removeItem, this)
+            _.forEach(this.keys(), key => this.removeItem(key))
         } else {
             this.store.clear()
         }

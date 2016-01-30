@@ -6,6 +6,7 @@ export interface Config {
     storageBackend?: Storage;
 
     encryption?: {
+        encryptKeys?: boolean;
         password: string;
         iv: Buffer;
         salt?: string;
