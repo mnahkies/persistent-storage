@@ -1,8 +1,9 @@
-var assert = require('assert')
+import _ = require('lodash')
+import PersistentStorage = require('../PersistentStorage')
+import Chance = require('chance')
+import assert = require('assert')
 
-var PersistentStorage = require('./index.js'),
-    StorageShim = require('node-storage-shim')
-
+var StorageShim = require('node-storage-shim')
 
 describe('PersistentStorage', function () {
     it('throws an error if no storage backend is provided and localStorage does not exist', function () {
@@ -12,20 +13,53 @@ describe('PersistentStorage', function () {
             assert.ok(true, 'Threw an error')
         }
     })
-
     describe('without key prefixing', function () {
-
-        describe('without compression', function () {
-            var instance = new PersistentStorage({useCompression: false, storageBackend: new StorageShim()})
+        describe('without compression or encryption', function () {
+            var instance = new PersistentStorage({
+                useCompression: false,
+                storageBackend: new StorageShim()
+            })
             testSaveAndRead(instance)
             testKeys(instance)
         })
-
         describe('with compression', function () {
-            var instance = new PersistentStorage({useCompression: true, storageBackend: new StorageShim()})
+            var instance = new PersistentStorage({
+                useCompression: true,
+                useCache: false,
+                storageBackend: new StorageShim()
+            })
             testSaveAndRead(instance)
             testKeys(instance)
         })
+        describe('with encryption', function () {
+            var instance = new PersistentStorage({
+                useCompression: false,
+                useCache: false,
+                encryption: {
+                    password: 'my super secret password',
+                    iv: PersistentStorage.generateIV(16),
+                    salt: PersistentStorage.generateSalt(64)
+                },
+                storageBackend: new StorageShim()
+            })
+            testSaveAndRead(instance)
+            testKeys(instance)
+        })
+        describe('with compression and encryption', function () {
+            var instance = new PersistentStorage({
+                useCompression: true,
+                useCache: false,
+                encryption: {
+                    password: 'my super secret password',
+                    iv: PersistentStorage.generateIV(16),
+                    salt: PersistentStorage.generateSalt(64)
+                },
+                storageBackend: new StorageShim()
+            })
+            testSaveAndRead(instance)
+            testKeys(instance)
+        })
+
 
         function testSaveAndRead(instance) {
             runTest('string', 'My Test String')
@@ -43,7 +77,7 @@ describe('PersistentStorage', function () {
                     var key = type + Math.random()
 
                     instance.setItem(key, value)
-                    assert.strictEqual(instance.getItem(key), value)
+                    assert.deepEqual(instance.getItem(key), value)
                     instance.removeItem(key)
                     assert.strictEqual(instance.getItem(key), undefined)
                 })
@@ -65,7 +99,6 @@ describe('PersistentStorage', function () {
             })
         }
     })
-
     describe('with a key prefix', function () {
         var storageBackend,
             fredsInstance,
@@ -123,5 +156,49 @@ describe('PersistentStorage', function () {
             assert.strictEqual(bobsInstance.length, 1)
         })
     });
+    describe('with large data using encryption and compression', () => {
+        var instance,
+            data,
+            clonedData,
+            chance
 
+        before(() => {
+            chance = new Chance()
+
+            instance = new PersistentStorage({
+                useCompression: true,
+                encryption: {
+                    password: 'my super secret password',
+                    iv: PersistentStorage.generateIV(16),
+                    salt: PersistentStorage.generateSalt(64)
+                },
+                storageBackend: new StorageShim()
+            })
+
+            data = [];
+
+            _.times(1000, n => {
+                data.push({
+                    id: n,
+                    first: chance.first(),
+                    last: chance.last(),
+                    time: (new Date()).toUTCString(),
+                    message: chance.paragraph()
+                })
+            })
+
+            clonedData = _.cloneDeep(data)
+        })
+
+        it('can store large objects', () => {
+            instance.setItem('my long key', data)
+        })
+        it('can retrieve un-cached large objects', () => {
+            instance.purgeCache()
+            assert.deepEqual(instance.getItem('my long key'), clonedData)
+        })
+        it('can retrieve cached large objects', () => {
+            assert.deepEqual(instance.getItem('my long key'), clonedData)
+        })
+    })
 })
