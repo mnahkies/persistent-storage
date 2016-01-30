@@ -17,7 +17,7 @@ export function generateIV(lengthBytes: number): Buffer {
 export class KeyDerivationOptions {
     password: string;
     salt: string = '';
-    iterations: number = 100000;
+    iterations: number = 10;
     derivedKeyLength: number = 16;
     digest: string = 'sha512';
 

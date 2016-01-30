@@ -7,12 +7,13 @@
     "definition": "./persistent-storage.d.ts"
   },
   "scripts": {
+    "precov": "npm run build",
     "cov": "istanbul cover node_modules/mocha/bin/_mocha -- dist/test",
-    "build": "tsc",
+    "build": "tsc && grunt build-tests",
     "postbuild": "npm run dts-bundle",
     "dts-bundle": "node build-scripts/dts-bundle.js",
     "pretest": "npm run build",
-    "test": "mocha dist/test",
+    "test": "mocha dist/test && grunt test",
     "prepublish": "npm run build"
   },
   "repository": {
@@ -28,8 +29,12 @@
   "devDependencies": {
     "chance": "^0.8.0",
     "dts-bundle": "^0.4.3",
+    "grunt": "^0.4.5",
+    "grunt-browserify": "^4.0.1",
+    "grunt-cli": "^0.1.13",
+    "grunt-mocha-phantomjs": "^2.0.1",
     "istanbul": "^0.4.2",
-    "mocha": "^2.2.5",
+    "mocha": "^2.4.5",
     "node-storage-shim": "^1.0.1"
   },
   "dependencies": {

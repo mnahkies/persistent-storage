@@ -19,11 +19,11 @@ class PersistentStorage {
 
     constructor(opts: I.Config) {
         this.config = new Config(opts)
-        this.store = opts.storageBackend || localStorage
+        this.store = opts.storageBackend
         this.cache = {}
 
         if (!this.store) {
-            throw new Error("No storageBackend was given and localStorage does not exist")
+            throw new Error("Must provide a storageBackend to wrap")
         }
 
         Object.defineProperty(this, 'length', {
