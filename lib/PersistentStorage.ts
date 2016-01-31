@@ -25,12 +25,6 @@ class PersistentStorage {
         if (!this.store) {
             throw new Error("Must provide a storageBackend to wrap")
         }
-
-        Object.defineProperty(this, 'length', {
-            get: function () {
-                return this.keys().length
-            }
-        })
     }
 
     static generateSalt(lengthBytes: number): string {
@@ -39,6 +33,10 @@ class PersistentStorage {
 
     static generateIV(lengthBytes: number): Buffer {
         return crypto.generateIV(lengthBytes)
+    }
+
+    get length(): number {
+        return this.keys().length
     }
 
     /**
@@ -116,7 +114,7 @@ class PersistentStorage {
                 try {
                     return crypto.decryptUtf8(key, this.config.encryption)
                 } catch (err) {
-                    return '';
+                    return ''
                 }
             })
             keys = keys.compact()
@@ -163,6 +161,9 @@ class PersistentStorage {
         }
     }
 
+    /**
+     * Clears all items from the cache
+     */
     purgeCache(): void {
         this.cache = {}
     }
@@ -196,4 +197,4 @@ function inflateValueFromStorage(str: string, config: Config): any {
     return JSON.parse(str)
 }
 
-export = PersistentStorage;
+export = PersistentStorage

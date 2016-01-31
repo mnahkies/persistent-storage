@@ -5,13 +5,18 @@ import Chance = require('chance')
 import assert = require('assert')
 import util = require('util')
 
+interface OptionCombinations {
+    name: string
+    values: any[]
+}
+
 function runTests(storageBackendFactory: () => Storage) {
     describe('PersistentStorage', function () {
         it('throws an error if no storage backend is provided', function () {
             expectToThrow(() => new PersistentStorage({}))
         })
         describe('standard tests', () => {
-            var options: {name: string; values: any[]}[] = [
+            var options: OptionCombinations[] = [
                 {
                     name: 'useCompression',
                     values: [false, true]
@@ -66,7 +71,7 @@ function runTests(storageBackendFactory: () => Storage) {
                 runTests('second instance', secondOptions, storageBackend)
             })
 
-            function runTests(description, options, storageBackend) {
+            function runTests(description: string, options: OptionCombinations[], storageBackend: Storage) {
                 describe(description, () => {
                     _.map(generateConfigCombinations(options), function (config: I.Config) {
                         describe("with configuration " + configToDescriptiveString(config), function () {
@@ -81,12 +86,12 @@ function runTests(storageBackendFactory: () => Storage) {
                 })
             }
 
-            function generateConfigCombinations(options): I.Config[] {
+            function generateConfigCombinations(options: OptionCombinations[]): I.Config[] {
 
-                function generate(path: any[], remaining: any[], results: any[]) {
+                function generate(path: any[], remaining: OptionCombinations[], results: any[]) {
                     if (remaining.length === 0) {
                         results.push(_.extend.apply(_, [{}].concat(path)))
-                        return results;
+                        return results
                     }
 
                     var first = _.first(remaining)
@@ -105,7 +110,7 @@ function runTests(storageBackendFactory: () => Storage) {
 
             function configToDescriptiveString(config: I.Config) {
                 return util.format('useCompression=%s useEncryption=%s encryptKeys=%s useCache=%s keyPrefix=%s',
-                    config.useCompression, !!config.encryption, config.encryption && config.encryption.encryptKeys, config.useCache, config.keyPrefix);
+                    config.useCompression, !!config.encryption, config.encryption && config.encryption.encryptKeys, config.useCache, config.keyPrefix)
             }
 
             function testSaveAndRead(instance: PersistentStorage) {
@@ -119,13 +124,13 @@ function runTests(storageBackendFactory: () => Storage) {
                 runTest('null', null)
                 runTest('undefined', undefined)
 
-                function runTest(type, value) {
+                function runTest(type: string, value: any) {
                     it('can save and read back a ' + type, function () {
                         var key = type + Math.random()
 
                         instance.setItem(key, value)
                         assert.deepEqual(instance.getItem(key), value)
-                        instance.purgeCache();
+                        instance.purgeCache()
                         assert.deepEqual(instance.getItem(key), value)
                         instance.removeItem(key)
                         assert.strictEqual(instance.getItem(key), undefined)
@@ -133,7 +138,7 @@ function runTests(storageBackendFactory: () => Storage) {
                 }
             }
 
-            function testKeys(instance) {
+            function testKeys(instance: PersistentStorage) {
                 it("clear will result in no keys", function () {
                     instance.clear()
                     assert.strictEqual(instance.keys().length, 0)
@@ -149,9 +154,9 @@ function runTests(storageBackendFactory: () => Storage) {
             }
         })
         describe('with a key prefix', function () {
-            var storageBackend,
-                fredsInstance,
-                bobsInstance
+            var storageBackend: Storage,
+                fredsInstance: PersistentStorage,
+                bobsInstance: PersistentStorage
 
             beforeEach(function () {
                 storageBackend = storageBackendFactory()
@@ -180,7 +185,7 @@ function runTests(storageBackendFactory: () => Storage) {
                 bobsInstance.removeItem('lastName')
 
                 assert.strictEqual(fredsInstance.getItem('lastName'), 'Smith')
-                assert.strictEqual(bobsInstance.getItem('lastName'), undefined);
+                assert.strictEqual(bobsInstance.getItem('lastName'), undefined)
             })
             it('scopes keys to the prefixed instance', function () {
                 fredsInstance.setItem('lastName', 'Smith')
@@ -199,29 +204,27 @@ function runTests(storageBackendFactory: () => Storage) {
             it('scopes clear to the prefixed instance', function () {
                 fredsInstance.setItem('lastName', 'Smith')
                 bobsInstance.setItem('phoneNumber', '32-4234-123')
-                fredsInstance.clear();
+                fredsInstance.clear()
 
                 assert.strictEqual(fredsInstance.length, 0)
                 assert.strictEqual(bobsInstance.length, 1)
             })
-        });
-        describe.skip('with large data using encryption and compression', () => {
+        })
+        describe('with large data using encryption and compression', () => {
             /*
              TODO This doesn't run in phantomjs, uses memory like crazy until it crashes. Runs ok in chrome.
              */
 
-            var instance,
-                data,
-                clonedData,
-                chance
-
-            before(() => {
+            var instance: PersistentStorage,
+                data: any[],
+                clonedData: any[],
                 chance = new Chance()
 
+            before(() => {
                 instance = new PersistentStorage({
                     useCompression: true,
                     encryption: {
-                        encryptKeys: true,
+                        encryptKeys: false,
                         password: 'my super secret password',
                         iv: PersistentStorage.generateIV(16),
                         salt: PersistentStorage.generateSalt(64)
@@ -229,7 +232,7 @@ function runTests(storageBackendFactory: () => Storage) {
                     storageBackend: storageBackendFactory()
                 })
 
-                data = [];
+                data = []
 
                 _.times(1000, n => {
                     data.push({
@@ -245,7 +248,6 @@ function runTests(storageBackendFactory: () => Storage) {
             })
 
             it('can store large objects', () => {
-                console.log('attempting to store a large object')
                 instance.setItem('my long key', data)
             })
             it('can retrieve un-cached large objects', () => {
@@ -260,7 +262,7 @@ function runTests(storageBackendFactory: () => Storage) {
 }
 
 function expectToThrow(fn: Function) {
-    var threw
+    var threw: boolean
 
     try {
         fn()

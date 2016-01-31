@@ -1,9 +1,9 @@
-var crypto = require('crypto');
+var crypto = require('crypto')
 
 export interface Options {
     algorithm: string;
     key: string;
-    iv: string;
+    iv: Buffer;
 }
 
 export function generateSalt(lengthBytes: number): string {
@@ -42,28 +42,85 @@ export function deriveEncryptionKey(options: KeyDerivationOptions): string {
 }
 
 
-export function encryptUtf8(str, options: Options): string {
+export function encryptUtf8(str: string, options: Options): string {
     return encrypt(str, 'utf8', options)
 }
 
-export function encryptUcs2(str, options: Options): string {
+export function encryptUcs2(str: string, options: Options): string {
     return encrypt(str, 'ucs2', options)
 }
 
-export function decryptUtf8(str, options: Options): string {
+export function decryptUtf8(str: string, options: Options): string {
     return decrypt(str, 'utf8', options)
 }
 
-export function decryptUcs2(str, options: Options): string {
+export function decryptUcs2(str: string, options: Options): string {
     return decrypt(str, 'ucs2', options)
 }
 
-function encrypt(str, srcEncoding, options: Options): string {
+const MIN_CHUNK_SIZE = 32
+var chunkSize: number = 512
+
+function encrypt(str: string, srcEncoding: string, options: Options): string {
     var cipher = crypto.createCipheriv(options.algorithm, options.key, options.iv)
-    return cipher.update(str, srcEncoding).toString('ucs2') + cipher.final().toString('ucs2')
+
+    var result: string = '',
+        elapsed: number,
+        chunkStart: number,
+        chunk: string
+
+    while (str.length > 0) {
+
+        if (chunkStart) {
+            //only want to adapt the chunkSize if we are processing something bigger than a single chunk
+            if (elapsed > 5 && chunkSize > MIN_CHUNK_SIZE) {
+                chunkSize /= 2
+            } else if (elapsed === 0) {
+                chunkSize *= 2
+            }
+        }
+
+        chunkStart = Date.now()
+
+        chunk = str.slice(0, chunkSize)
+        str = str.slice(chunkSize)
+
+        result += cipher.update(chunk, srcEncoding).toString('ucs2')
+
+        elapsed = Date.now() - chunkStart
+    }
+
+    return result + cipher.final().toString('ucs2')
 }
 
 function decrypt(str: string, destEncoding: string, options: Options): string {
     var decipher = crypto.createDecipheriv(options.algorithm, options.key, options.iv)
-    return decipher.update(str, 'ucs2', destEncoding) + decipher.final(destEncoding)
+
+    var result: string = '',
+        elapsed: number,
+        chunkStart: number,
+        chunk: string
+
+    while (str.length > 0) {
+
+        if (chunkStart) {
+            //only want to adapt the chunkSize if we are processing something bigger than a single chunk
+            if (elapsed > 5 && chunkSize > MIN_CHUNK_SIZE) {
+                chunkSize /= 2
+            } else if (elapsed === 0) {
+                chunkSize *= 2
+            }
+        }
+
+        chunkStart = Date.now()
+
+        chunk = str.slice(0, chunkSize)
+        str = str.slice(chunkSize)
+
+        result += decipher.update(chunk, 'ucs2', destEncoding)
+
+        elapsed = Date.now() - chunkStart
+    }
+
+    return result + decipher.final(destEncoding)
 }
