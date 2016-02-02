@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/mnahkies/persistent-storage.svg)](https://travis-ci.org/mnahkies/persistent-storage)
 
-# persistent-storage # 
+# persistent-storage 
 Abstracts access to any storage object implementing the webstorage Storage interface, and provides some extra features:
 
 - Seamless Serialisation / Deserialization of objects (functions and prototype etc however will not be maintained)
@@ -8,11 +8,11 @@ Abstracts access to any storage object implementing the webstorage Storage inter
 - Optional seamless encryption using node crypto / browserify-crypto
 - Optional key scoping
 
-### Configuration ###
+### Configuration
 See [interfaces](https://github.com/mnahkies/persistent-storage/blob/master/lib/interfaces.ts) for documentation of configuration object
 
 
-## Example Usage ##
+## Example Usage
 
     //Without Scoping
     var PersistentStore = require('persistent-store')
@@ -48,7 +48,7 @@ See [interfaces](https://github.com/mnahkies/persistent-storage/blob/master/lib/
         
 See unit tests [here](https://github.com/mnahkies/persistent-storage/blob/master/lib/test/PersistentStorage.test.ts) for further examples
     
-## Installation ## 
+## Installation
 persistent-storage is available as an npm package. Simply run:
     
     npm install --save persistent-storage
@@ -58,8 +58,7 @@ A generated typescript definition file is provided with the package and should b
     /// <reference path="node_modules/persistent-storage/persistent-storage.d.ts" />
    
     
-Running Unit Tests
-------------------
+## Running Unit Tests
 The unit tests use mocha and phantomjs, and are setup to run by the standard npm test command.
 
     npm install
