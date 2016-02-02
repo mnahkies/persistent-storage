@@ -1,6 +1,6 @@
 {
   "name": "persistent-storage",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "Abstracts access to any storage object implementing the webstorage Storage interface, offering optional compression using lz-string",
   "main": "dist/index.js",
   "typescript": {
