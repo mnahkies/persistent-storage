@@ -1,7 +1,7 @@
 {
   "name": "persistent-storage",
-  "version": "2.0.0",
-  "description": "Abstracts access to any storage object implementing the webstorage Storage interface, offering optional compression using lz-string",
+  "version": "2.0.1",
+  "description": "Abstracts access to any storage object implementing the webstorage Storage interface, offering optional compression using lz-string and optional encryption using crypto",
   "main": "dist/index.js",
   "typescript": {
     "definition": "./persistent-storage.d.ts"
@@ -25,6 +25,13 @@
   "bugs": {
     "url": "https://github.com/mnahkies/persistent-storage/issues"
   },
+  "keywords": [
+    "encryption",
+    "crypto",
+    "compression",
+    "localstorage",
+    "sessionstorage"
+  ],
   "homepage": "https://github.com/mnahkies/persistent-storage",
   "devDependencies": {
     "chance": "^0.8.0",
