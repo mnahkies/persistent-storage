@@ -1,17 +1,19 @@
 [![Build Status](https://travis-ci.org/mnahkies/persistent-storage.svg)](https://travis-ci.org/mnahkies/persistent-storage)
 
-persistent-storage
-==================
-Abstracts access to any storage object implementing the webstorage Storage interface, offering optional compression using lz-string
+# persistent-storage # 
+Abstracts access to any storage object implementing the webstorage Storage interface, and provides some extra features:
 
-### Available Options ###
+- Seamless Serialisation / Deserialization of objects (functions and prototype etc however will not be maintained)
+- Optional seamless compression using lz-string
+- Optional seamless encryption using node crypto / browserify-crypto
+- Optional key scoping
 
-- *useCompression*: boolean - defaults false, sets whether to compress stored values using lz-string
-- *keyPrefix*: string - defaults empty, sets whether to scope the storage by transparently prefixing keys
-- *storageBackend*: T implements Storage - defaults to localStorage, can be any object providing the interface specified by [w3c Storage Interface](https://w3c.github.io/webstorage/#storage-0)
+### Configuration ###
+See [interfaces](https://github.com/mnahkies/persistent-storage/blob/master/lib/interfaces.ts) for documentation of configuration object
 
-Example Usage
------
+
+## Example Usage ##
+
     //Without Scoping
     var PersistentStore = require('persistent-store')
     
@@ -43,18 +45,24 @@ Example Usage
         
         console.log(fred.getItem("name")) // prints Fred
         console.log(bob.getItem("name")) // prints  Bob
+        
+See unit tests [here](https://github.com/mnahkies/persistent-storage/blob/master/lib/test/PersistentStorage.test.ts) for further examples
     
-Installation
-------------
+## Installation ## 
 persistent-storage is available as an npm package. Simply run:
     
     npm install --save persistent-storage
     
+A generated typescript definition file is provided with the package and should be referenced like
+   
+    /// <reference path="node_modules/persistent-storage/persistent-storage.d.ts" />
+   
     
 Running Unit Tests
 ------------------
-The unit tests use mocha, and are setup to run by the standard npm test command.
+The unit tests use mocha and phantomjs, and are setup to run by the standard npm test command.
 
     npm install
     npm test
     
+You can also run them using the browser of your choice by opening the html file [found here](https://github.com/mnahkies/persistent-storage/blob/master/lib/test/PersistentStorage.test.html)

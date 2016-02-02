@@ -1,0 +1,47 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>persistent-storage tests</title>
+    <link rel="stylesheet" href="../../node_modules/mocha/mocha.css"/>
+</head>
+<body>
+<div id="mocha"></div>
+<script src="../../node_modules/mocha/mocha.js"></script>
+<script src="../../dist/test/browserified.js"></script>
+
+<script>
+    mocha.setup('bdd');
+    mocha.checkLeaks();
+
+    if(window._phantom){
+        //increase timeout as encryption / decryption is very slow in phantom and pushes up against the 2s timeout
+        mocha.timeout(5 * 1000)
+    }
+
+    /** test files go below this line **/
+</script>
+
+<script>
+    var PersistentStorageTest = require('PersistentStorage.test')
+
+    describe('using localStorage', function () {
+        PersistentStorageTest(function () {
+            window.localStorage.clear()
+            return window.localStorage
+        })
+    })
+
+    describe('using sessionStorage', function () {
+        PersistentStorageTest(function () {
+            window.sessionStorage.clear()
+            return window.sessionStorage
+        })
+    })
+</script>
+
+<script>
+    /** tests go above this line **/
+    mocha.run();
+</script>
+</body>
+</html>
