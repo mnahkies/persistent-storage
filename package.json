@@ -9,8 +9,10 @@
   "scripts": {
     "precov": "npm run build",
     "cov": "istanbul cover node_modules/mocha/bin/_mocha -- dist/test",
+    "prebuild": "npm run clean",
     "build": "tsc && grunt build-tests",
     "postbuild": "npm run dts-bundle",
+    "clean": "rm -rf dist",
     "dts-bundle": "node build-scripts/dts-bundle.js",
     "pretest": "npm run build",
     "test": "mocha dist/test && grunt test",
