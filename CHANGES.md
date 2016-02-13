@@ -1,3 +1,12 @@
+### 2.0.2 (2016-02-14)
+
+    - Fixed files included in published package
+    - Add clean build step
+    
+### 2.0.1 (2016-02-02)
+
+    - Package json keywords update
+
 ### 2.0.0 (2016-02-02)
 
 #### Breaking Changes
