@@ -31,4 +31,12 @@ node_modules
 
 #exclude typescript sources and test files from publishing
 dist/test
+dist/**/*.d.ts
+dist/**/*.js.map
+build-scripts
+typings
+tsconfig.json
+tsd.json
+gruntfile.js
+.travis.yml
 lib

@@ -1,3 +1,7 @@
+### 2.0.3 (2016-02-14)
+
+    - Ignored more files from published package
+
 ### 2.0.2 (2016-02-14)
 
     - Fixed files included in published package
