@@ -136,6 +136,35 @@ function runTests(storageBackendFactory: () => Storage) {
                         assert.strictEqual(instance.getItem(key), undefined)
                     })
                 }
+
+                it("returns values that are safe to mutate", () => {
+                    var key = 'mutable';
+
+                    var expected: any = [{
+                        foo: 'bar',
+                        arr: [{a: 'b', c: 'd'}]
+                    }]
+
+                    var obj: any = [{
+                        foo: 'bar',
+                        arr: [{a: 'b', c: 'd'}]
+                    }]
+
+                    instance.setItem(key, obj)
+                    assert.deepEqual(instance.getItem(key), expected)
+                    mutateObj(obj)
+                    assert.deepEqual(instance.getItem(key), expected)
+
+                    obj = instance.getItem(key)
+                    mutateObj(obj)
+                    assert.deepEqual(instance.getItem(key), expected)
+
+                    function mutateObj(obj: any) {
+                        obj[0].arr.push({e: 'f'})
+                        obj[0].arr[0].a = 'c'
+                        obj.push({})
+                    }
+                });
             }
 
             function testKeys(instance: PersistentStorage) {

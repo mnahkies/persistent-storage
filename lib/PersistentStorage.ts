@@ -52,7 +52,7 @@ class PersistentStorage {
         }
 
         if (this.config.useCache) {
-            this.cache[key] = value
+            this.cache[key] = _.cloneDeep(value)
         }
 
         if (this.config.encryptKeys) {
@@ -71,7 +71,7 @@ class PersistentStorage {
         key = this.config.keyPrefix + key
 
         if (this.config.useCache && this.cache.hasOwnProperty(key)) {
-            return this.cache[key]
+            return _.cloneDeep(this.cache[key])
         }
 
         if (this.config.encryptKeys) {
