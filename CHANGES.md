@@ -1,3 +1,15 @@
+### 3.0.0 (2017-05-11)
+
+#### Breaking Changes
+  
+  - Removed dts-bundle / persistent-storage.d.ts in favour of specifying a types property in package.json
+
+#### Other changes
+
+  - Updated dependencies
+  - Removed typings in favour of @types
+  - Increased strictness of typescript compiler options
+
 ### 2.0.4 (2016-02-14)
 
   - Clone values when adding to cache or reading from cache to provide consistent behaviour whether the cache is in use or not

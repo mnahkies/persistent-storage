@@ -21,7 +21,7 @@ export class KeyDerivationOptions {
     derivedKeyLength: number = 16;
     digest: string = 'sha512';
 
-    constructor(opts: {password: string; salt?: string; iterations?: number; derivedKeyLength?: number; digest?: string}) {
+    constructor(opts: { password: string; salt?: string; iterations?: number; derivedKeyLength?: number; digest?: string }) {
         this.password = opts.password
 
         this.salt = opts.salt || this.salt
@@ -62,11 +62,11 @@ const MIN_CHUNK_SIZE = 32
 var chunkSize: number = 512
 
 function encrypt(str: string, srcEncoding: string, options: Options): string {
-    var cipher = crypto.createCipheriv(options.algorithm, options.key, options.iv)
+    const cipher = crypto.createCipheriv(options.algorithm, options.key, options.iv)
 
-    var result: string = '',
-        elapsed: number,
-        chunkStart: number,
+    let result: string = '',
+        elapsed: number = 0,
+        chunkStart: number = 0,
         chunk: string
 
     while (str.length > 0) {
@@ -94,11 +94,11 @@ function encrypt(str: string, srcEncoding: string, options: Options): string {
 }
 
 function decrypt(str: string, destEncoding: string, options: Options): string {
-    var decipher = crypto.createDecipheriv(options.algorithm, options.key, options.iv)
+    const decipher = crypto.createDecipheriv(options.algorithm, options.key, options.iv)
 
-    var result: string = '',
-        elapsed: number,
-        chunkStart: number,
+    let result: string = '',
+        elapsed: number = 0,
+        chunkStart: number = 0,
         chunk: string
 
     while (str.length > 0) {

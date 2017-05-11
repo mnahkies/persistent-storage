@@ -15,16 +15,16 @@ import _ = require('lodash')
 class PersistentStorage {
     private config: Config;
     private store: Storage;
-    private cache: {[key: string]: any};
+    private cache: { [key: string]: any };
 
     constructor(opts: I.Config) {
+        if (!opts.storageBackend) {
+            throw new Error("Must provide a storageBackend to wrap")
+        }
+
         this.config = new Config(opts)
         this.store = opts.storageBackend
         this.cache = {}
-
-        if (!this.store) {
-            throw new Error("Must provide a storageBackend to wrap")
-        }
     }
 
     static generateSalt(lengthBytes: number): string {
@@ -122,8 +122,8 @@ class PersistentStorage {
 
         if (prefix) {
             keys = keys.filter(function (key) {
-                    return _.startsWith(key, prefix)
-                })
+                return _.startsWith(key, prefix)
+            })
                 .map(function (key) {
                     return key.substr(prefix.length)
                 })

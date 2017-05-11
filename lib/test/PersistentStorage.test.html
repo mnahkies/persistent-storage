@@ -13,7 +13,7 @@
     mocha.setup('bdd');
     mocha.checkLeaks();
 
-    if(window._phantom){
+    if (window._phantom) {
         //increase timeout as encryption / decryption is very slow in phantom and pushes up against the 2s timeout
         mocha.timeout(5 * 1000)
     }

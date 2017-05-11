@@ -53,11 +53,9 @@ persistent-storage is available as an npm package. Simply run:
     
     npm install --save persistent-storage
     
-A generated typescript definition file is provided with the package and should be referenced like
-   
-    /// <reference path="node_modules/persistent-storage/persistent-storage.d.ts" />
-   
-    
+A typescript definition file is provided with the package and will be automatically used by the typescript compiler
+
+
 ## Running Unit Tests
 The unit tests use mocha and phantomjs, and are setup to run by the standard npm test command.
 
