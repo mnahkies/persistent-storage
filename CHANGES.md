@@ -1,3 +1,9 @@
+### 3.0.1 (2017-05-13)
+
+  - Updated dependencies
+  - Removed superfluous @types/lodash / @types/lz-string dependencies
+  - Added missing @types/node peerDependency
+    
 ### 3.0.0 (2017-05-11)
 
 #### Breaking Changes
